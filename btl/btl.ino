@@ -7,7 +7,7 @@
 #define WIFI_PASSWORD "11111111"
 
 #define MQTT_HOST IPAddress(172, 20, 10, 3)
-// #define MQTT_HOST IPAddress(172, 20, 10, 2)
+// #define MQTT_HOST IPAddress(172, 20, 10, 3)
 #define MQTT_PORT 1883
 
 #define MQTT_PUB_SENSOR "esp/sensor"
@@ -19,7 +19,7 @@
 #define LEDPIN D4
 #define FANPIN D2
 
-#define DHTTYPE DHT11  
+#define DHTTYPE DHT11
 
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -112,7 +112,7 @@ void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties 
   }
 }
 
-void setup() {
+void setup(){
   Serial.begin(115200);
   Serial.println();
 
@@ -129,25 +129,23 @@ void setup() {
   mqttClient.onMessage(onMqttMessage);
   mqttClient.setServer(MQTT_HOST, MQTT_PORT);
 
-
   pinMode(LEDPIN, OUTPUT);
   pinMode(FANPIN, OUTPUT);
   
   connectToWifi();
 }
 
-void loop() {
+void loop(){
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;
-    temp = dht.readTemperature();
     hum = dht.readHumidity();
+    temp = dht.readTemperature();
     lightValue = 1024 - analogRead(LIGHTPIN);
 
     String message = String(temp) + "," + String(hum) + "," + String(lightValue);
     uint16_t packetIdPub = mqttClient.publish(MQTT_PUB_SENSOR, 1, true, message.c_str());                            
     Serial.printf("Publishing on topic %s at QoS 1, packetId: %i \n", MQTT_PUB_SENSOR, packetIdPub);
     Serial.println(message);
-
   }
 }
